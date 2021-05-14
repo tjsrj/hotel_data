@@ -21,7 +21,7 @@ def send_message():
         for leads, name, activation in combo:
 
             time.sleep(2)
-            message = entry.get()
+            message = entry.get(1.0, END)
             if activation == 1:
                 print(f'Sending Message to: {name}')
                 time.sleep(2)
@@ -40,14 +40,14 @@ def send_message():
                 time.sleep(1)
         print("messages sent to everyone")
     def clear():
-        entry.delete(0, END)
+        entry.delete(1.0, END)
 
 
     label = Label(root1, text="Enter Message: ")
     label.grid(row=0, column=0, padx=8, pady=8)
     global entry
-    entry = Entry(root1)
-    entry.grid(row=0, column=1, padx=8, pady=8)
+    entry = Text(root1, height=10, width=25)
+    entry.grid(row=0, column=1, padx=8, pady=8, ipadx=20, ipady=30)
 
     button = Button(root1, text="Send", command = bulk_messenger)
     button.grid(row=1, column=0, padx=8, pady=8)
@@ -56,6 +56,6 @@ def send_message():
     button2.grid(row=1, column=1, padx=8, pady=8)
 
     root1.mainloop()
-    if __name__ == "__send_message__":
+    if __name__ == "__main__":
         send_message()
 
