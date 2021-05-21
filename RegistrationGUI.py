@@ -62,5 +62,5 @@ def register_customer():
     button2.grid(row=4, column=1, padx=8, pady=8)
 
     root1.mainloop()
-    if __name__ == "__register_customer__":
+    if __name__ == "__main__":
         register_customer()
