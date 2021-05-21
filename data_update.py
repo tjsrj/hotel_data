@@ -1,87 +1,160 @@
-import tkinter as tk
-import tkinter.ttk as ttk
-from tkinter import messagebox
-from tkinter.messagebox import showinfo
+from tkinter import *
+from tkinter import ttk, filedialog
 import csv
-import os
-from csv import writer
-import pandas as pd
 
-def data_change():
-    win = tk.Tk()
-    win.title("Data Changer")
 
-    def search():
-        data = pd.read_csv(r'C:\Users\Admin\PyCharmProjects\hotel_data\Registry.csv')
-        data['First Name'] = data['First Name'].str.lower()
-        data['Last Name'] = data['Last Name'].str.lower()
-        f_name = str(entry.get())
-        f_name = f_name.str.lower()
-        l_name = str(entry1.get())
-        l_name = l_name.str.lower()
-        ph = entry2.get()
-        main = pd.DataFrame()
+def clear_tree():
+    tree.delete(*tree.get_children())
 
-        if len(f_name) != 0:
-            df = data[data['First Name']== f_name]
-            main = main.append(df, ignore_index = True)
-            main['First Name'] = main['First Name'].str.title()
-            main['Last Name'] = main['Last Name'].str.title()
+
+def load_csv():
+    clear_tree()
+    global filename
+    filename = filedialog.askopenfilename(
+        initialdir="C:",
+        title="Open A File",
+        filetype=(("csv files", "*.csv"), ("All File", "*.*"))
+    )
+    with open(filename) as myfile:
+        csvread = csv.reader(myfile, delimiter=',')
+        print(type(csvread))
+        for row in csvread:
+            tree.insert("", 'end', values=row)
+
+
+def search_record():
+    query = str.lower(fn_box.get())
+    query1 = str.lower(ln_box.get())
+    query2 = str.lower(ph_box.get())
+    query3 = str.lower(ms_box.get())
+    selections = []
+    for child in tree.get_children():
+        search = str(tree.item(child)['values']).lower()
+        if len(query) != 0:
+            if query in search:
+                selections.append(child)
         else:
-             messagebox.showinfo("System", "No First Name entered, trying other parameters")
-
-        if len(l_name) != 0:
-            df1 = data[data['Last Name'] == l_name]
-            main = main.append(df1, ignore_index = True)
-            main['First Name'] = main['First Name'].str.title()
-            main['Last Name'] = main['Last Name'].str.title()
+            pass
+        if len(query1) != 0:
+            if query1 in search:
+                selections.append(child)
         else:
-            messagebox.showinfo("System", "No Last Name entered, trying other Parameters")
-
-        if len(str(ph)) != 0:
-            ph = int(ph)
-            df3 = data[data['Phone Number'] == ph]
-            main = main.append(df3, ignore_index = True)
-            main['First Name'] = main['First Name'].str.title()
-            main['Last Name'] = main['Last Name'].str.title()
+            pass
+        if len(query2) != 0:
+            if query2 in search:
+                selections.append(child)
         else:
-            messagebox.showinfo("System", "No Phone Number entered, trying other parameters")
+            pass
+        if len(query3) != 0:
+            if query3 in search:
+                selections.append(child)
+        else:
+            pass
+    tree.selection_set(selections)
 
 
-        row_count = len(main.index)
-        print(row_count)
-        print(main)
-        #win1 = tk.Tk()
-        #win1.title("Select Data")
+def select_record():
+    fn_box.delete(0, END)
+    ln_box.delete(0, END)
+    ph_box.delete(0, END)
+    ms_box.delete(0, END)
 
-    def clear():
-        entry.delete(0,tk.END)
-        entry1.delete(0,tk.END)
-        entry2.delete(0,tk.END)
+    selected = tree.focus()
+    values = tree.item(selected, 'values')
+    fn_box.insert(0, values[0])
+    ln_box.insert(0, values[1])
+    ph_box.insert(0, values[2])
+    ms_box.insert(0, values[3])
 
 
-    label = tk.Label(win,text = "First Name: ")
-    label.grid(row=0,column=0, padx=8, pady=8)
-    entry = tk.Entry(win)
-    entry.grid(row=0,column=1, padx=8, pady=8)
+def save_csv():
+    selected = tree.focus()
+    tree.item(selected, text="", values=(fn_box.get(), ln_box.get(), ph_box.get(), ms_box.get()))
+    with open("Registry.csv", "w", newline='') as myfile:
+        csvwriter = csv.writer(myfile, delimiter=',')
 
-    label1 = tk.Label(win,text="Last Name: ")
-    label1.grid(row=1,column=0, padx=8, pady=8)
-    entry1 = tk.Entry(win)
-    entry1.grid(row=1,column=1, padx=8, pady=8)
+        for row_id in tree.get_children():
+            row = tree.item(row_id)['values']
+            csvwriter.writerow(row)
+    fn_box.delete(0, END)
+    ln_box.delete(0, END)
+    ph_box.delete(0, END)
+    ms_box.delete(0, END)
 
-    label2 = tk.Label(win,text="Phone Number: ")
-    label2.grid(row=2, column=0, padx=8, pady=8)
-    entry2 = tk.Entry(win)
-    entry2.grid(row=2, column=1, padx=8, pady=8)
 
-    button = ttk.Button(win, text="Search", command=search)
-    button.grid(row=4, column=0, padx=8, pady=8)
+def clear():
+    fn_box.delete(0, END)
+    ln_box.delete(0, END)
+    ph_box.delete(0, END)
+    ms_box.delete(0, END)
 
-    button2 = ttk.Button(win, text="Clear", command=clear)
-    button2.grid(row=4, column=1, padx=8, pady=8)
 
-    win.mainloop()
+# --- main ---
 
-data_change()
+root = Tk()
 
+tree = ttk.Treeview(root, height=25, selectmode='extended')
+tree.pack()
+
+tree["columns"] = ("one", "two", "three", "four")
+tree.column("one", width=120)
+tree.column("two", width=160)
+tree.column("three", width=130)
+tree.column("four", width=160)
+tree["show"] = "headings"
+
+# Menu options for selecting file
+my_menu = Menu(root)
+root.config(menu=my_menu)
+
+file_menu = Menu(my_menu, tearoff=False)
+my_menu.add_cascade(label="Spreadsheets", menu=file_menu)
+file_menu.add_command(label="open", command=load_csv)
+
+# Create frame
+label_frame = Frame(root)
+label_frame.pack(pady=20)
+
+buttons_frame = Frame(root)
+buttons_frame.pack(pady=20)
+
+# Creating Buttons
+search_button = Button(buttons_frame, text="Search Record", command=search_record)
+search_button.grid(row=0, column=0)
+
+select_button = Button(buttons_frame, text="Select Record", command=select_record)
+select_button.grid(row=0, column=1)
+
+button_save = Button(buttons_frame, text='Save', command=save_csv)
+button_save.grid(row=0, column=2)
+
+clear = Button(buttons_frame, text='Clear', command=clear)
+clear.grid(row=0, column=3)
+
+# Add Labels
+fn_label = Label(label_frame, text="First Name")
+fn_label.grid(row=0, column=0)
+
+ln_label = Label(label_frame, text="Last Name")
+ln_label.grid(row=0, column=1)
+
+ph_label = Label(label_frame, text="Phone Number")
+ph_label.grid(row=0, column=2)
+
+ms_label = Label(label_frame, text="Messaging Services")
+ms_label.grid(row=0, column=3)
+
+# Entry Boxes
+fn_box = Entry(label_frame)
+fn_box.grid(row=1, column=0)
+
+ln_box = Entry(label_frame)
+ln_box.grid(row=1, column=1)
+
+ph_box = Entry(label_frame)
+ph_box.grid(row=1, column=2)
+
+ms_box = Entry(label_frame)
+ms_box.grid(row=1, column=3)
+
+root.mainloop()
