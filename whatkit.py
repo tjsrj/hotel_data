@@ -9,7 +9,8 @@ def send_message():
     root1.title("Sending fliers")
 
     def bulk_messenger():
-        data = pd.read_csv(r'C:\Users\Admin\PyCharmProjects\hotel_data\Registry.csv')
+        file = open('Registry.csv')
+        data = pd.read_csv(file)
         data_dict = data.to_dict('list')
         leads = data_dict['Phone Number']
         name = data_dict['First Name']

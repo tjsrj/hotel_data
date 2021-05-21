@@ -1,7 +1,4 @@
 .idea
 __pycache__
 Registry.csv
-temp.py
-asd.py
-herwegoagain.py
-temptree.py
+dist
